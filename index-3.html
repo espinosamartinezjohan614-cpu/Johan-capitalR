@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Johan Capital — Membresía</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0d; --panel:#121417; --panel-2:#17191d; --line:#26292f;
+    --text:#e8e6e1; --text-dim:#8b8f98; --gold:#b8862e; --gold-soft:#d9ab5c;
+    --danger:#8b3a3a; --mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+    font-family:'IBM Plex Sans', Arial, sans-serif;}
+  button{font-family:inherit; cursor:pointer;}
+  input{font-family:inherit;}
+  ::placeholder{color:#54585f;}
+  .hidden{display:none !important;}
+  @keyframes ping{75%,100%{transform:scale(2); opacity:0;}}
+  .ping{animation:ping 1.4s cubic-bezier(0,0,0.2,1) infinite;}
+  .status-dot{position:relative; display:inline-flex; height:10px; width:10px;}
+  .status-dot .ping-ring{position:absolute; display:inline-flex; height:100%; width:100%;
+    border-radius:9999px; background:#60a5fa; opacity:.75; animation:ping 1.4s cubic-bezier(0,0,0.2,1) infinite;}
+  .status-dot .core{position:relative; display:inline-flex; border-radius:9999px;
+    height:10px; width:10px; background:#3b82f6;}
+
+  #login-screen{min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; padding:16px;}
+  .login-card{width:100%; max-width:384px; border:1px solid var(--line); background:var(--panel);
+    position:relative;}
+  .login-card .dot-corner{position:absolute; top:-10px; right:-10px;}
+  .login-topbar{border-bottom:1px solid var(--line); background:var(--panel-2); padding:8px 20px;
+    display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px;
+    letter-spacing:.05em; color:var(--text-dim);}
+  .login-topbar .badge{display:flex; align-items:center; gap:4px; color:var(--gold-soft);}
+  .login-topbar .badge .gdot{width:6px; height:6px; border-radius:50%; background:var(--gold-soft);}
+  .login-body{padding:32px 28px;}
+  .brand{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:20px;}
+  .brand span{font-weight:400; color:var(--gold-soft);}
+  .login-sub{font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-top:4px;}
+  label.field-label{display:block; font-family:var(--mono); font-size:10px; letter-spacing:.05em;
+    color:var(--text-dim); margin-bottom:6px;}
+  input.field{width:100%; background:var(--bg); border:1px solid var(--line); padding:12px;
+    font-size:16px; color:var(--text);}
+  .error-box{font-family:var(--mono); font-size:11px; color:#c17b7b; border-left:2px solid var(--danger);
+    padding:4px 0 4px 8px; margin-top:12px;}
+  #login-btn{width:100%; background:var(--gold); color:var(--bg); font-size:14px; font-weight:600;
+    padding:14px; border:none; display:flex; align-items:center; justify-content:center; gap:8px;
+    margin-top:16px;}
+  #login-btn:disabled{opacity:.6;}
+  .login-foot{margin-top:24px; text-align:center; font-family:var(--mono); font-size:10px; color:#54585f;}
+
+  #dash-screen{min-height:100vh;}
+  .dash-shell{max-width:1024px; margin:0 auto; border-left:1px solid var(--line);
+    border-right:1px solid var(--line); min-height:100vh; position:relative;}
+  .dash-dot-corner{position:absolute; top:12px; right:12px; z-index:10;}
+  .dash-topbar{border-bottom:1px solid var(--line); background:var(--panel-2); padding:8px 20px;
+    display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px;
+    letter-spacing:.05em; color:var(--text-dim);}
+  .dash-topbar .badge{display:flex; align-items:center; gap:6px; color:var(--gold-soft);}
+  .dash-topbar .gdot{width:6px; height:6px; border-radius:50%; background:var(--gold-soft);}
+  header.dash-header{display:flex; justify-content:space-between; align-items:flex-end;
+    padding:20px 28px; border-bottom:1px solid var(--line); flex-wrap:wrap; gap:12px;}
+  .member-info{text-align:right; font-family:var(--mono); font-size:11px; color:var(--text-dim);}
+  .member-info b{color:var(--text); font-weight:500;}
+  #logout-btn{background:none; border:none; color:var(--text-dim); font-size:13px;}
+  .dash-body{display:flex; flex-wrap:wrap;}
+  aside.sidebar{width:256px; border-right:1px solid var(--line); padding:20px;}
+  .sidebar-title{font-family:var(--mono); font-size:10px; letter-spacing:.05em; color:var(--text-dim);
+    margin-bottom:12px;}
+  .mod-btn{width:100%; text-align:left; padding:10px 12px; display:flex; align-items:center; gap:10px;
+    font-size:12.5px; border:1px solid transparent; background:transparent; color:var(--text);
+    margin-bottom:4px;}
+  .mod-btn.active{border-color:var(--gold); background:var(--panel-2);}
+  .mod-btn.locked{opacity:.4; cursor:not-allowed;}
+  .mod-btn .num{font-family:var(--mono); font-size:10px; color:#54585f;}
+  main.dash-main{flex:1; padding:24px 28px; min-width:280px;}
+  .mod-eyebrow{font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-bottom:4px;}
+  h1.mod-title{font-family:'Space Grotesk', sans-serif; font-size:26px; font-weight:600; margin:0 0 4px;}
+  .mod-duration{font-size:13px; color:var(--text-dim); margin-bottom:24px;}
+  .content-grid{display:grid; grid-template-columns:1.5fr 1fr; gap:18px;}
+  @media (max-width:640px){ .content-grid{grid-template-columns:1fr;} }
+  .video-box{width:100%; aspect-ratio:16/9; background:#000; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; position:relative; padding:0;}
+  .play-circle{width:52px; height:52px; border-radius:50%; border:1.5px solid var(--gold-soft);
+    display:flex; align-items:center; justify-content:center; color:var(--gold-soft); font-size:16px;}
+  .video-time{position:absolute; bottom:10px; left:12px; font-family:var(--mono); font-size:10px;
+    color:var(--text-dim);}
+  .video-fallback{margin-top:10px; font-family:var(--mono); font-size:10.5px; color:var(--text-dim);
+    border-left:2px solid var(--gold); padding-left:10px;}
+  .report-box{background:var(--panel-2); border:1px solid var(--line); padding:18px;}
+  .report-box h3{font-family:var(--mono); font-size:11px; letter-spacing:.06em; color:var(--gold-soft);
+    text-transform:uppercase; margin:0 0 12px;}
+  .report-box p{font-size:12.5px; line-height:1.65; color:var(--text-dim); margin:0 0 10px;}
+  .report-box strong{color:var(--text); font-weight:500;}
+  .report-box ul{padding-left:16px; margin:0;}
+  .report-box li{font-size:12.5px; line-height:1.65; color:var(--text-dim); margin-bottom:6px;}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="dot-corner status-dot"><span class="ping-ring"></span><span class="core"></span></div>
+    <div class="login-topbar">
+      <span>ACCESO PRIVADO</span>
+      <span class="badge"><span class="gdot"></span>MEMBRESÍA</span>
+    </div>
+    <div class="login-body">
+      <div style="margin-bottom:32px;">
+        <div class="brand">JOHAN <span>CAPITAL</span></div>
+        <div class="login-sub">Entra con tu cuenta de miembro</div>
+      </div>
+      <div>
+        <label class="field-label">CORREO</label>
+        <input id="email-input" class="field" type="email" autocapitalize="none" autocorrect="off" placeholder="tu@correo.com" />
+      </div>
+      <div style="margin-top:16px;">
+        <label class="field-label">CONTRASEÑA</label>
+        <input id="password-input" class="field" type="password" placeholder="••••••••" />
+      </div>
+      <div id="error-box" class="error-box hidden"></div>
+      <button id="login-btn" type="button">🔒 <span id="login-btn-text">Entrar al curso</span></button>
+      <div class="login-foot">Acceso solo para miembros invitados</div>
+    </div>
+  </div>
+</div>
+
+<div id="dash-screen" class="hidden">
+  <div class="dash-shell">
+    <div class="dash-dot-corner status-dot"><span class="ping-ring"></span><span class="core"></span></div>
+    <div class="dash-topbar">
+      <span>MIEMBRO VERIFICADO — ACCESO PRIVADO</span>
+      <span class="badge"><span class="gdot"></span>SESIÓN ACTIVA</span>
+    </div>
+    <header class="dash-header">
+      <div class="brand">JOHAN <span>CAPITAL</span></div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div class="member-info">
+          <div>Bienvenido, <b id="member-name"></b></div>
+          <div id="member-progress"></div>
+        </div>
+        <button id="logout-btn" type="button">Salir</button>
+      </div>
+    </header>
+    <div class="dash-body">
+      <aside class="sidebar">
+        <div class="sidebar-title">CONTENIDO DEL CURSO</div>
+        <div id="module-list"></div>
+      </aside>
+      <main class="dash-main">
+        <div class="mod-eyebrow" id="mod-eyebrow"></div>
+        <h1 class="mod-title" id="mod-title"></h1>
+        <div class="mod-duration" id="mod-duration"></div>
+        <div class="content-grid">
+          <div>
+            <div id="video-wrap"></div>
+            <div class="video-fallback">Si el video no carga aquí, revisa que el ID de YouTube esté bien copiado en el archivo.</div>
+          </div>
+          <div class="report-box" id="report-box"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ttltadilxjmpoqlnwlat.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0bHRhZGlseGptcG9xbG53bGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MjQ0NzIsImV4cCI6MjEwMDQwMDQ3Mn0.GxY896iJmWr65L24scDvIfqg79KswmhTYQ3Qqi_Dq6c";
+
+// ============================================================
+// 👇 AQUÍ EDITAS TU CONTENIDO — un bloque { } por cada módulo.
+// youtubeId: solo el código que aparece después de "v=" en el
+//   link de YouTube. Ejemplo: si el link es
+//   https://www.youtube.com/watch?v=dQw4w9WgXcQ
+//   entonces youtubeId es "dQw4w9WgXcQ"
+// status: "done" (ya visto), "current" (el que sigue),
+//   o "locked" (bloqueado hasta terminar el anterior)
+// ============================================================
+const MODULES = [
+  { id: 1, title: "Fundamentos del mercado", duration: "14:20", status: "done",
+    youtubeId: "",
+    thesis: "Todo movimiento de precio nace de un desequilibrio entre oferta y demanda de liquidez, no de una 'noticia'.",
+    points: ["Diferencia entre narrativa de mercado y fundamentales reales.", "Por qué el precio se mueve antes de que la noticia sea pública."] },
+  { id: 2, title: "Jerarquía HYG / MOVE / 2Y", duration: "21:05", status: "done",
+    youtubeId: "",
+    thesis: "El crédito (HYG) lidera el ciclo. La volatilidad (MOVE) confirma. Las tasas (2Y) ejecutan. El equity reacciona al final.",
+    points: ["Cómo leer HYG como termómetro de apetito de riesgo.", "Por qué el equity es el último en enterarse."] },
+  { id: 3, title: "Lectura de régimen macro", duration: "18:30", status: "current",
+    youtubeId: "",
+    thesis: "Operar sobre señales divergentes antes de que exista consenso es la ventaja real, no la velocidad de ejecución.",
+    points: ["Clasificación de régimen: expansión, contracción, transición.", "Uso de H.8, SLOOS y KRE/XLF como confirmación estructural."] },
+  { id: 4, title: "Ejecución y gestión de riesgo", duration: "16:45", status: "locked",
+    youtubeId: "", thesis: "", points: [] },
+  { id: 5, title: "Heikin Ashi y confirmación de entrada", duration: "12:50", status: "locked",
+    youtubeId: "", thesis: "", points: [] },
+];
+
+let currentEmail = "";
+let activeId = 3;
+let playing = false;
+
+const $ = (id) => document.getElementById(id);
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+async function handleLogin(){
+  const email = $("email-input").value.trim();
+  const password = $("password-input").value;
+  const errorBox = $("error-box");
+  errorBox.classList.add("hidden");
+  errorBox.textContent = "";
+
+  if (!email || !password){
+    errorBox.textContent = "Ingresa correo y contraseña para continuar.";
+    errorBox.classList.remove("hidden");
+    return;
+  }
+
+  const btn = $("login-btn");
+  const btnText = $("login-btn-text");
+  btn.disabled = true;
+  btnText.textContent = "Verificando…";
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok){
+      errorBox.textContent = data.error_description || data.msg || "Correo o contraseña incorrectos, o esta cuenta no es miembro todavía.";
+      errorBox.classList.remove("hidden");
+      btn.disabled = false;
+      btnText.textContent = "Entrar al curso";
+      return;
+    }
+    currentEmail = email;
+    showDashboard();
+  } catch(err){
+    errorBox.textContent = "No se pudo conectar. Revisa tu internet e intenta de nuevo.";
+    errorBox.classList.remove("hidden");
+    btn.disabled = false;
+    btnText.textContent = "Entrar al curso";
+  }
+}
+
+function showDashboard(){
+  $("login-screen").classList.add("hidden");
+  $("dash-screen").classList.remove("hidden");
+  $("member-name").textContent = currentEmail.split("@")[0];
+  const completed = MODULES.filter(m => m.status === "done").length;
+  $("member-progress").textContent = `Progreso: ${completed}/${MODULES.length} módulos`;
+  renderModuleList();
+  renderActiveModule();
+}
+
+function renderModuleList(){
+  const container = $("module-list");
+  container.innerHTML = "";
+  MODULES.forEach(m => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "mod-btn" + (m.id === activeId ? " active" : "") + (m.status === "locked" ? " locked" : "");
+    if (m.status === "locked") btn.disabled = true;
+    btn.innerHTML = `<span class="num">${String(m.id).padStart(2,"0")}</span><span>${escapeHtml(m.title)}</span>`;
+    btn.addEventListener("click", () => {
+      if (m.status === "locked") return;
+      activeId = m.id;
+      playing = false;
+      renderModuleList();
+      renderActiveModule();
+    });
+    container.appendChild(btn);
+  });
+}
+
+function renderActiveModule(){
+  const active = MODULES.find(m => m.id === activeId);
+  $("mod-eyebrow").textContent = `MÓDULO ${String(active.id).padStart(2,"0")}`;
+  $("mod-title").textContent = active.title;
+  $("mod-duration").textContent = `Duración: ${active.duration}`;
+
+  const videoWrap = $("video-wrap");
+  if (active.youtubeId){
+    videoWrap.innerHTML = `<iframe
+      style="width:100%; aspect-ratio:16/9; border:1px solid var(--line); display:block;"
+      src="https://www.youtube.com/embed/${encodeURIComponent(active.youtubeId)}"
+      title="${escapeHtml(active.title)}"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>`;
+  } else {
+    videoWrap.innerHTML = `<button id="video-box" class="video-box" type="button">
+      <div class="play-circle" id="play-circle">${playing ? "❚❚" : "▶"}</div>
+      <div class="video-time" id="video-time">${playing ? "reproduciendo…" : "00:00"} / ${active.duration}</div>
+    </button>`;
+    $("video-box").addEventListener("click", () => { playing = !playing; renderActiveModule(); });
+  }
+
+  const reportBox = $("report-box");
+  if (active.thesis){
+    let html = `<h3>Informe del módulo</h3>`;
+    html += `<p><strong>Tesis central — </strong>${escapeHtml(active.thesis)}</p>`;
+    html += `<ul>` + active.points.map(p => `<li>${escapeHtml(p)}</li>`).join("") + `</ul>`;
+    reportBox.innerHTML = html;
+  } else {
+    reportBox.innerHTML = `<h3>Informe del módulo</h3><p style="color:#54585f;">Este módulo se desbloquea al completar el anterior.</p>`;
+  }
+}
+
+$("login-btn").addEventListener("click", handleLogin);
+$("password-input").addEventListener("keydown", (e) => { if (e.key === "Enter") handleLogin(); });
+$("logout-btn").addEventListener("click", () => {
+  $("dash-screen").classList.add("hidden");
+  $("login-screen").classList.remove("hidden");
+  $("password-input").value = "";
+});
+</script>
+</body>
+</html>
